@@ -1,0 +1,3 @@
+(executable
+ (name p1)
+ (libraries CP_test base core stdio str zarith))
