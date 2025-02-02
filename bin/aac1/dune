@@ -4,3 +4,6 @@
 (executable
  (name p2)
  (libraries lib base core stdio str zarith))
+(executable
+ (name p3)
+ (libraries lib base core stdio str zarith))
