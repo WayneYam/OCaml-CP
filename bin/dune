@@ -1,3 +1,5 @@
 (executable
  (name template)
- (libraries lib base core stdio str zarith))
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_sexp_conv))
+ (flags (-dsource)))

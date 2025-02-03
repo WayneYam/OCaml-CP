@@ -1,0 +1,80 @@
+[@@@ocaml.ppx.context
+  {
+    tool_name = "ppx_driver";
+    include_dirs = [];
+    load_path = [];
+    open_modules = [];
+    for_package = None;
+    debug = false;
+    use_threads = false;
+    use_vmthreads = false;
+    recursive_types = false;
+    principal = false;
+    transparent_modules = false;
+    unboxed_types = false;
+    unsafe_string = false;
+    cookies = []
+  }]
+open! Base
+open! Core
+open! Stdio
+(** Template starts*)
+module Lib = struct
+  module Input = struct
+    open! Base
+    open! Core
+    open! Stdio
+    
+    let read_line () = In_channel.(input_line_exn stdin)
+    let read_int () = Int.of_string @@ read_line ()
+    
+    let read_int_list ?(on = [ ' ' ]) () =
+      List.map ~f:Int.of_string @@ String.split_on_chars ~on @@ read_line ()
+    ;;
+    
+    let read_int64 () = Int64.of_string @@ read_line ()
+    
+    let read_int64_list ?(on = [ ' ' ]) () =
+      List.map ~f:Int64.of_string @@ String.split_on_chars ~on @@ read_line ()
+    ;;
+  end
+end
+(** Template ends*)
+open! Lib.Input
+module T =
+  struct
+    type t = (int * int)[@@deriving (compare, sexp)]
+    include
+      struct
+        let _ = fun (_ : t) -> ()
+        let compare =
+          (fun a__001_ ->
+             fun b__002_ ->
+               let (t__003_, t__004_) = a__001_ in
+               let (t__005_, t__006_) = b__002_ in
+               match compare_int t__003_ t__005_ with
+               | 0 -> compare_int t__004_ t__006_
+               | n -> n : t -> ((t)[@merlin.hide ]) -> int)
+        let _ = compare
+        let t_of_sexp =
+          (let error_source__013_ = "bin/aac1/p4.ml.T.t" in
+           function
+           | Sexplib0.Sexp.List (arg0__008_::arg1__009_::[]) ->
+               let res0__010_ = int_of_sexp arg0__008_
+               and res1__011_ = int_of_sexp arg1__009_ in
+               (res0__010_, res1__011_)
+           | sexp__012_ ->
+               Sexplib0.Sexp_conv_error.tuple_of_size_n_expected
+                 error_source__013_ 2 sexp__012_ : Sexplib0.Sexp.t -> t)
+        let _ = t_of_sexp
+        let sexp_of_t =
+          (fun (arg0__014_, arg1__015_) ->
+             let res0__016_ = sexp_of_int arg0__014_
+             and res1__017_ = sexp_of_int arg1__015_ in
+             Sexplib0.Sexp.List [res0__016_; res1__017_] : t ->
+                                                             Sexplib0.Sexp.t)
+        let _ = sexp_of_t
+      end[@@ocaml.doc "@inline"][@@merlin.hide ]
+  end
+module S = (Set.Make)(T)
+let () = print_endline "Hello World!"

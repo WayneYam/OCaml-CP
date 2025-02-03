@@ -7,3 +7,8 @@
 (executable
  (name p3)
  (libraries lib base core stdio str zarith))
+(executable
+ (name p4)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_compare ppx_sexp_conv))
+ (flags (-dsource)))

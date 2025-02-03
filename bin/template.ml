@@ -6,3 +6,5 @@ open! Stdio
 open! Lib.Input
 
 let () = print_endline "Hello World!"
+
+(** End of file *)

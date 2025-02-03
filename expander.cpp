@@ -44,9 +44,20 @@ int main() {
 
 	string s;
 
-	string target = "(** Definitions of modules here *)";
+	string start = "[@@@ocaml.ppx.context";
+	string module_def = "[@@@ocaml.text \" Definition of modules here \"]";
+	string end = "[@@@ocaml.text \" End of file \"]";
+
+	bool has_start = false;
+	bool has_end = false;
 	while (getline(cin, s)) {
-		if (s == target) {
+		if (s == start) has_start = true;
+		if (s == end) has_end = true;
+
+		if (!has_start) continue;
+		if (has_end) break;
+
+		if (s == module_def) {
 			cout << "(** Template starts*)\n";
 			cout << get_all_modules();
 			cout << "(** Template ends*)\n";
@@ -55,5 +66,8 @@ int main() {
 		}
 	}
 
-	return 0;
+	if (!has_start)
+		return 1;
+	else
+		return 0;
 }
