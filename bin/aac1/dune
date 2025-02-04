@@ -10,5 +10,5 @@
 (executable
  (name p4)
  (libraries lib base core stdio str zarith)
- (preprocess (pps ppx_compare ppx_sexp_conv))
+ (preprocess (pps ppx_jane))
  (flags (-dsource)))

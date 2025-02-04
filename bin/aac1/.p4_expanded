@@ -15,6 +15,8 @@
     unsafe_string = false;
     cookies = []
   }]
+let () =
+  Ppx_module_timer_runtime.record_start Ppx_module_timer_runtime.__MODULE__
 open! Base
 open! Core
 open! Stdio
@@ -77,4 +79,4 @@ module T =
       end[@@ocaml.doc "@inline"][@@merlin.hide ]
   end
 module S = (Set.Make)(T)
-let () = print_endline "Hello World!"
+let () = print_endline "Hello Test!"
