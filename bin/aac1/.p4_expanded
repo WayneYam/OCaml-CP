@@ -94,6 +94,7 @@ module Pair_int =
       end[@@ocaml.doc "@inline"][@@merlin.hide ]
   end
 module Pair_set = (Set.Make)(Pair_int)
+module Int_set = (Set.Make)(Int)
 let get_factor_list range =
   let res = Array.init (range + 1) ~f:(fun id -> ([] : int list)) in
   for i = range downto 1 do
@@ -105,37 +106,30 @@ let () =
   match read_int_list () with
   | n::q::[] ->
       let array = read_int_list () in
-      let pair_set =
-        Pair_set.of_list @@
-          (List.mapi ~f:(fun id -> fun v -> (v, (id + 1))) array) in
-      let answer_query l r x =
-        let memoi = Hashtbl.create (module Pair_int) in
-        let test_value t =
-          let search () =
-            match Set.binary_search pair_set `First_greater_than_or_equal_to
-                    ~compare:(fun (a__018_ : (int * int)) ->
-                                fun
-                                  (((b__019_ : (int * int)))[@merlin.hide ])
-                                  ->
-                                  ((let (t__020_, t__021_) = a__018_ in
-                                    let (t__022_, t__023_) = b__019_ in
-                                    match compare_int t__020_ t__022_ with
-                                    | 0 -> compare_int t__021_ t__023_
-                                    | n -> n)
-                                  [@merlin.hide ])) (t, l)
-            with
-            | None -> false
-            | Some (v, id) -> if (v = t) && (id <= r) then true else false in
-          match Hashtbl.find memoi (t, l) with
-          | None ->
-              let b = search () in (Hashtbl.set memoi ~key:(t, l) ~data:b; b)
-          | Some b -> b in
-        let test_factor t = (test_value t) && (test_value (x / t)) in
-        List.exists ~f:test_factor (factor_list.(x)) in
-      for i = 1 to q do
-        (match read_int_list () with
-         | l::r::x::[] ->
-             print_string (if answer_query l r x then "YES\n" else "NO\n")
-         | _ -> assert false)
-      done
+      let positions = Array.init 100001 ~f:(fun id -> Int_set.empty) in
+      (List.iteri
+         ~f:(fun id ->
+               fun v -> positions.(v) <- (Set.add (positions.(v)) (id + 1)))
+         array;
+       (let answer_query l r x =
+          let test_value t =
+            let search () =
+              match Set.binary_search (positions.(t))
+                      `First_greater_than_or_equal_to
+                      ~compare:(fun (a__018_ : int) ->
+                                  fun (((b__019_ : int))[@merlin.hide ]) ->
+                                    ((compare_int a__018_ b__019_)
+                                    [@merlin.hide ])) l
+              with
+              | None -> false
+              | Some id -> if id <= r then true else false in
+            search () in
+          let test_factor t = (test_value t) && (test_value (x / t)) in
+          List.exists ~f:test_factor (factor_list.(x)) in
+        for i = 1 to q do
+          match read_int_list () with
+          | l::r::x::[] ->
+              print_string (if answer_query l r x then "YES\n" else "NO\n")
+          | _ -> assert false
+        done))
   | _ -> assert false

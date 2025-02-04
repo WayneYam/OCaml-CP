@@ -11,6 +11,7 @@ module Pair_int = struct
 end
 
 module Pair_set = Set.Make (Pair_int)
+module Int_set = Set.Make (Int)
 
 let get_factor_list range =
   let res = Array.init (range + 1) ~f:(fun id -> ([] : int list)) in
@@ -28,27 +29,22 @@ let () =
   match read_int_list () with
   | [ n; q ] ->
     let array = read_int_list () in
-    let pair_set = Pair_set.of_list @@ List.mapi ~f:(fun id v -> v, id + 1) array in
+    let positions = Array.init 100001 ~f:(fun id -> Int_set.empty) in
+    List.iteri ~f:(fun id v -> positions.(v) <- Set.add positions.(v) (id + 1)) array;
     let answer_query l r x =
-      let memoi = Hashtbl.create (module Pair_int) in
       let test_value t =
         let search () =
           match
             Set.binary_search
-              pair_set
+              positions.(t)
               `First_greater_than_or_equal_to
-              ~compare:[%compare: int * int]
-              (t, l)
+              ~compare:[%compare: int]
+              l
           with
           | None -> false
-          | Some (v, id) -> if v = t && id <= r then true else false
+          | Some id -> if id <= r then true else false
         in
-        match Hashtbl.find memoi (t, l) with
-        | None ->
-          let b = search () in
-          Hashtbl.set memoi ~key:(t, l) ~data:b;
-          b
-        | Some b -> b
+        search ()
       in
       let test_factor t = test_value t && test_value (x / t) in
       List.exists ~f:test_factor factor_list.(x)
