@@ -43,40 +43,99 @@ module Lib = struct
 end
 (** Template ends*)
 open! Lib.Input
-module T =
+module Pair_int =
   struct
-    type t = (int * int)[@@deriving (compare, sexp)]
+    type t = (int * int)[@@deriving (sexp, compare, hash)]
     include
       struct
         let _ = fun (_ : t) -> ()
-        let compare =
-          (fun a__001_ ->
-             fun b__002_ ->
-               let (t__003_, t__004_) = a__001_ in
-               let (t__005_, t__006_) = b__002_ in
-               match compare_int t__003_ t__005_ with
-               | 0 -> compare_int t__004_ t__006_
-               | n -> n : t -> ((t)[@merlin.hide ]) -> int)
-        let _ = compare
         let t_of_sexp =
-          (let error_source__013_ = "bin/aac1/p4.ml.T.t" in
+          (let error_source__007_ = "bin/aac1/p4.ml.Pair_int.t" in
            function
-           | Sexplib0.Sexp.List (arg0__008_::arg1__009_::[]) ->
-               let res0__010_ = int_of_sexp arg0__008_
-               and res1__011_ = int_of_sexp arg1__009_ in
-               (res0__010_, res1__011_)
-           | sexp__012_ ->
+           | Sexplib0.Sexp.List (arg0__002_::arg1__003_::[]) ->
+               let res0__004_ = int_of_sexp arg0__002_
+               and res1__005_ = int_of_sexp arg1__003_ in
+               (res0__004_, res1__005_)
+           | sexp__006_ ->
                Sexplib0.Sexp_conv_error.tuple_of_size_n_expected
-                 error_source__013_ 2 sexp__012_ : Sexplib0.Sexp.t -> t)
+                 error_source__007_ 2 sexp__006_ : Sexplib0.Sexp.t -> t)
         let _ = t_of_sexp
         let sexp_of_t =
-          (fun (arg0__014_, arg1__015_) ->
-             let res0__016_ = sexp_of_int arg0__014_
-             and res1__017_ = sexp_of_int arg1__015_ in
-             Sexplib0.Sexp.List [res0__016_; res1__017_] : t ->
+          (fun (arg0__008_, arg1__009_) ->
+             let res0__010_ = sexp_of_int arg0__008_
+             and res1__011_ = sexp_of_int arg1__009_ in
+             Sexplib0.Sexp.List [res0__010_; res1__011_] : t ->
                                                              Sexplib0.Sexp.t)
         let _ = sexp_of_t
+        let compare =
+          (fun a__012_ ->
+             fun b__013_ ->
+               let (t__014_, t__015_) = a__012_ in
+               let (t__016_, t__017_) = b__013_ in
+               match compare_int t__014_ t__016_ with
+               | 0 -> compare_int t__015_ t__017_
+               | n -> n : t -> ((t)[@merlin.hide ]) -> int)
+        let _ = compare
+        let (hash_fold_t :
+          Ppx_hash_lib.Std.Hash.state -> t -> Ppx_hash_lib.Std.Hash.state) =
+          fun hsv ->
+            fun arg ->
+              let (e0, e1) = arg in
+              let hsv = hash_fold_int hsv e0 in
+              let hsv = hash_fold_int hsv e1 in hsv
+        let _ = hash_fold_t
+        let (hash : t -> Ppx_hash_lib.Std.Hash.hash_value) =
+          let func arg =
+            Ppx_hash_lib.Std.Hash.get_hash_value
+              (let hsv = Ppx_hash_lib.Std.Hash.create () in
+               hash_fold_t hsv arg) in
+          fun x -> func x
+        let _ = hash
       end[@@ocaml.doc "@inline"][@@merlin.hide ]
   end
-module S = (Set.Make)(T)
-let () = print_endline "Hello Test!"
+module Pair_set = (Set.Make)(Pair_int)
+let get_factor_list range =
+  let res = Array.init (range + 1) ~f:(fun id -> ([] : int list)) in
+  for i = range downto 1 do
+    for j = i + 1 to range / i do res.(i * j) <- (i :: (res.(i * j))) done
+  done;
+  res
+let () =
+  let factor_list = get_factor_list 100000 in
+  match read_int_list () with
+  | n::q::[] ->
+      let array = read_int_list () in
+      let pair_set =
+        Pair_set.of_list @@
+          (List.mapi ~f:(fun id -> fun v -> (v, (id + 1))) array) in
+      let answer_query l r x =
+        let memoi = Hashtbl.create (module Pair_int) in
+        let test_value t =
+          let search () =
+            match Set.binary_search pair_set `First_greater_than_or_equal_to
+                    ~compare:(fun (a__018_ : (int * int)) ->
+                                fun
+                                  (((b__019_ : (int * int)))[@merlin.hide ])
+                                  ->
+                                  ((let (t__020_, t__021_) = a__018_ in
+                                    let (t__022_, t__023_) = b__019_ in
+                                    match compare_int t__020_ t__022_ with
+                                    | 0 -> compare_int t__021_ t__023_
+                                    | n -> n)
+                                  [@merlin.hide ])) (t, l)
+            with
+            | None -> false
+            | Some (v, id) -> if (v = t) && (id <= r) then true else false in
+          match Hashtbl.find memoi (t, l) with
+          | None ->
+              let b = search () in (Hashtbl.set memoi ~key:(t, l) ~data:b; b)
+          | Some b -> b in
+        let test_factor t = (test_value t) && (test_value (x / t)) in
+        List.exists ~f:test_factor (factor_list.(x)) in
+      for i = 1 to q do
+        (match read_int_list () with
+         | l::r::x::[] ->
+             print_string (if answer_query l r x then "YES\n" else "NO\n")
+         | _ -> assert false)
+      done
+  | _ -> assert false
