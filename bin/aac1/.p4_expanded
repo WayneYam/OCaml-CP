@@ -39,6 +39,24 @@ module Lib = struct
     let read_int64_list ?(on = [ ' ' ]) () =
       List.map ~f:Int64.of_string @@ String.split_on_chars ~on @@ read_line ()
     ;;
+    
+    let to_2ple l =
+      match l with
+      | [ x; y ] -> x, y
+      | _ -> assert false
+    ;;
+    
+    let to_3ple l =
+      match l with
+      | [ x; y; z ] -> x, y, z
+      | _ -> assert false
+    ;;
+    
+    let to_4ple l =
+      match l with
+      | [ x; y; z; w ] -> x, y, z, w
+      | _ -> assert false
+    ;;
   end
 end
 (** Template ends*)
@@ -102,34 +120,55 @@ let get_factor_list range =
   done;
   res
 let () =
-  let factor_list = get_factor_list 100000 in
-  match read_int_list () with
-  | n::q::[] ->
-      let array = read_int_list () in
-      let positions = Array.init 100001 ~f:(fun id -> Int_set.empty) in
-      (List.iteri
+  let range = 100000 in
+  let factor_list = get_factor_list range in
+  let (n, q) = to_2ple @@ (read_int_list ()) in
+  let array = read_int_list () in
+  let queries =
+    (List.sort
+       ~compare:(fun (a__018_ : (int * int * int * int)) ->
+                   fun (((b__019_ : (int * int * int * int)))[@merlin.hide ])
+                     ->
+                     ((let (t__020_, t__021_, t__022_, t__023_) = a__018_ in
+                       let (t__024_, t__025_, t__026_, t__027_) = b__019_ in
+                       match compare_int t__020_ t__024_ with
+                       | 0 ->
+                           (match compare_int t__021_ t__025_ with
+                            | 0 ->
+                                (match compare_int t__022_ t__026_ with
+                                 | 0 -> compare_int t__023_ t__027_
+                                 | n -> n)
+                            | n -> n)
+                       | n -> n)
+                     [@merlin.hide ])))
+      @@
+      (List.init q
          ~f:(fun id ->
-               fun v -> positions.(v) <- (Set.add (positions.(v)) (id + 1)))
-         array;
-       (let answer_query l r x =
-          let test_value t =
-            let search () =
-              match Set.binary_search (positions.(t))
-                      `First_greater_than_or_equal_to
-                      ~compare:(fun (a__018_ : int) ->
-                                  fun (((b__019_ : int))[@merlin.hide ]) ->
-                                    ((compare_int a__018_ b__019_)
-                                    [@merlin.hide ])) l
-              with
-              | None -> false
-              | Some id -> if id <= r then true else false in
-            search () in
-          let test_factor t = (test_value t) && (test_value (x / t)) in
-          List.exists ~f:test_factor (factor_list.(x)) in
-        for i = 1 to q do
-          match read_int_list () with
-          | l::r::x::[] ->
-              print_string (if answer_query l r x then "YES\n" else "NO\n")
-          | _ -> assert false
-        done))
-  | _ -> assert false
+               let (l, r, x) = to_3ple @@ (read_int_list ()) in
+               (l, r, x, ((q - 1) - id)))) in
+  let next_occurence = Array.init (range + 1) ~f:(fun x -> None) in
+  let answer = Array.init q ~f:(fun x -> false) in
+  let rec calc_answer lst queries idx =
+    match lst with
+    | [] -> queries
+    | hd::tl ->
+        let rest_queries = calc_answer tl queries (idx + 1) in
+        (next_occurence.(hd) <- (Some idx);
+         (let test x r =
+            match next_occurence.(x) with
+            | None -> false
+            | Some r' -> r' <= r in
+          let solve_l x r qid =
+            let factors = factor_list.(x) in
+            answer.(qid) <-
+              (List.exists ~f:(fun t -> (test t r) && (test (x / t) r))
+                 factors) in
+          let rec calc_l queries =
+            match queries with
+            | [] -> []
+            | (l, r, x, qid)::tl ->
+                if l = idx then (solve_l x r qid; calc_l tl) else queries in
+          calc_l rest_queries)) in
+  ignore (calc_answer array (List.rev queries) 1);
+  Array.iter ~f:(fun x -> print_string @@ (if x then "YES\n" else "NO\n"))
+    answer
