@@ -2,4 +2,5 @@
 
 (library
  (name lib)
+ (preprocess (pps ppx_jane))
  (libraries base core stdio str zarith))
