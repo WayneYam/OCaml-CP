@@ -11,13 +11,6 @@
  (modules p3)
  (libraries lib base core stdio str zarith))
 
-; (executable
-;  (name p4)
-;  (modules p4)
-;  (libraries base core stdio str zarith)
-;  (preprocess (pps ppx_jane))
-;  (flags (-dsource)))
-
  (rule
  (target p4_submit.ml)
  (deps p4.ml)
@@ -38,10 +31,3 @@
  (modules p4)
  (libraries lib base core stdio str zarith)
  (preprocess (pps ppx_jane)))
-
-(executable
- (name p5)
- (modules p5)
- (libraries lib base core stdio str zarith)
- (preprocess (pps ppx_jane))
- (flags (-dsource)))

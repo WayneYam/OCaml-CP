@@ -24,3 +24,5 @@ The main problem is online judges only support a single file upload, and they do
 2. Write code
 3. Use `dune build <problem>.exe` and `dune exec <problem>.exe` to build and run the code
 4. Use `dune build <problem>_include.exe` to generate the code that can be submitted directly, which I pipe to `wl-copy` in order to submit
+
+`example.ml` is an example of the processed result, it is a bit messy so any improvements are welcome.
