@@ -2,6 +2,8 @@
 
 Ocaml in competitive programming. Requires online judges with support for some common packages like `Base` or `Core`. Known judges that work are DMOJ and AtCoder.
 
+# Directory Structure
+
 ## Templates
 
 `bin/dune` and `bin/template.ml` are the default build configuration and the default code
@@ -14,7 +16,9 @@ Other files in `bin` are the solutions to some problems, check the relavant comm
 
 `lib` contains some commonly used code
 
-## My Workflow
+# Workflow
+
+The main problem is online judges only support a single file upload, and they do not support ppx, so I have to do that before submitting
 
 1. Use `oinit.fish` to generate the files for `<problem>`
 2. Write code
