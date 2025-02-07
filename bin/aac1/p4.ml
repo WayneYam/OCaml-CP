@@ -2,7 +2,7 @@ open! Base
 open! Core
 open! Stdio
 
-(** Definition of modules here *)
+(** Definitions of modules here *)
 
 open! Lib.Input
 
@@ -14,7 +14,7 @@ module Pair_set = Set.Make (Pair_int)
 module Int_set = Set.Make (Int)
 
 let get_factor_list range =
-  let res = Array.init (range + 1) ~f:(fun id -> ([] : int list)) in
+  let res = Array.init (range + 1) ~f:(fun _ -> ([] : int list)) in
   for i = range downto 1 do
     for j = i + 1 to range / i do
       res.(i * j) <- i :: res.(i * j)
@@ -27,7 +27,7 @@ let () =
   let range = 100000 in
   let factor_list = get_factor_list range in
   (* print_s @@ (sexp_of_array @@ sexp_of_list @@ sexp_of_int) factor_list; *)
-  let n, q = to_2ple @@ read_int_list () in
+  let _, q = to_2ple @@ read_int_list () in
   let array = read_int_list () in
   let queries =
     List.sort ~compare:[%compare: int * int * int * int]
@@ -35,8 +35,8 @@ let () =
       let l, r, x = to_3ple @@ read_int_list () in
       l, r, x, q - 1 - id)
   in
-  let next_occurence = Array.init (range + 1) ~f:(fun x -> None) in
-  let answer = Array.init q ~f:(fun x -> false) in
+  let next_occurence = Array.init (range + 1) ~f:(fun _ -> None) in
+  let answer = Array.init q ~f:(fun _ -> false) in
   let rec calc_answer lst queries idx =
     match lst with
     | [] -> queries

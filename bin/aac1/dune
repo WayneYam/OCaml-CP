@@ -1,14 +1,47 @@
 (executable
  (name p1)
+ (modules p1)
  (libraries lib base core stdio str zarith))
 (executable
  (name p2)
+ (modules p2)
  (libraries lib base core stdio str zarith))
 (executable
  (name p3)
+ (modules p3)
  (libraries lib base core stdio str zarith))
+
+; (executable
+;  (name p4)
+;  (modules p4)
+;  (libraries base core stdio str zarith)
+;  (preprocess (pps ppx_jane))
+;  (flags (-dsource)))
+
+ (rule
+ (target p4_submit.ml)
+ (deps p4.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name p4_submit)
+ (modules p4_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
 (executable
  (name p4)
+ (modules p4)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+(executable
+ (name p5)
+ (modules p5)
  (libraries lib base core stdio str zarith)
  (preprocess (pps ppx_jane))
  (flags (-dsource)))

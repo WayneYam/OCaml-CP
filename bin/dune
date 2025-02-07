@@ -1,6 +1,21 @@
+
+ (rule
+ (target template_submit.ml)
+ (deps template.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name template_submit)
+ (modules template_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
 (executable
  (name template)
  (modules template)
  (libraries lib base core stdio str zarith)
- (preprocess (pps ppx_jane))
- (flags (-dsource)))
+ (preprocess (pps ppx_jane)))

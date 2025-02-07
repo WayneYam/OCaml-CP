@@ -1,8 +1,0 @@
-
-Still not quite sure how to design DFS.
-
-The tree should contain two types, one for node and one for edge.
-
-They should probably both satisfy some signatures so maybe I should make them both modules.
-
-Current idea is to have four parameters, type of node, type of edge, the function for pushing down, and the function to merge back up

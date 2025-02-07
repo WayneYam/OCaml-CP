@@ -1,15 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-string get_module(filesystem::path current_path, string name) {
+string get_module(filesystem::path p, string name) {
 	using namespace std::filesystem;
 
 	string s;
 	s += "module " + name + " = struct\n";
 
 	stringstream ss;
-	if (is_directory(current_path)) {
-		for (auto const &dir_entry : std::filesystem::directory_iterator{current_path}) {
+	if (is_directory(p)) {
+		for (auto const &dir_entry : std::filesystem::directory_iterator{p}) {
 			path next_path = dir_entry.path();
 
 			string fn = next_path.filename().stem().string();
@@ -21,9 +21,9 @@ string get_module(filesystem::path current_path, string name) {
 			ss << t;
 		}
 	} else {
-		assert(is_regular_file(current_path));
+		assert(is_regular_file(p));
 		fstream fs;
-		fs.open(current_path);
+		fs.open(p);
 		ss << string(istreambuf_iterator<char>(fs), istreambuf_iterator<char>());
 	}
 
@@ -36,9 +36,7 @@ string get_module(filesystem::path current_path, string name) {
 	return s;
 }
 
-string get_all_modules() {
-	return get_module("/home/wayne/Documents/OCaml/projects/CP/lib/", "Lib");
-}
+string get_all_modules() { return get_module("lib", "Lib"); }
 
 int main() {
 	cin.tie(0);
@@ -46,9 +44,20 @@ int main() {
 
 	string s;
 
-	string target = "(** Definitions of modules here *)";
+	string start = "[@@@ocaml.ppx.context";
+	string module_def = "[@@@ocaml.text \" Definition of modules here \"]";
+	string end = "[@@@ocaml.text \" End of file \"]";
+
+	bool has_start = false;
+	bool has_end = false;
 	while (getline(cin, s)) {
-		if (s == target) {
+		if (s == start) has_start = true;
+		if (s == end) has_end = true;
+
+		if (!has_start) continue;
+		if (has_end) break;
+
+		if (s == module_def) {
 			cout << "(** Template starts*)\n";
 			cout << get_all_modules();
 			cout << "(** Template ends*)\n";
@@ -57,5 +66,8 @@ int main() {
 		}
 	}
 
-	return 0;
+	if (!has_start)
+		return 1;
+	else
+		return 0;
 }
