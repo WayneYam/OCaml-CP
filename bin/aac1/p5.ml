@@ -27,7 +27,7 @@ let () =
     in
     get_edges [] (n - 1)
   in
-  let tree = Tree.init ~nodes:(List.init (n + 1) ~f:ignore) ~edges in
+  let tree = Tree.init (List.init (n + 1) ~f:ignore) edges in
   let init_in : in_data = { depth = 0 } in
   let init_out (data : in_data) : out_data =
     if data.depth % 2 = 1 then { odd = 1; even = 0 } else { odd = 0; even = 1 }

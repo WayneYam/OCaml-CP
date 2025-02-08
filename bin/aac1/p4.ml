@@ -6,13 +6,6 @@ open! Stdio
 
 open! Lib.Input
 
-module Pair_int = struct
-  type t = int * int [@@deriving sexp, compare, hash]
-end
-
-module Pair_set = Set.Make (Pair_int)
-module Int_set = Set.Make (Int)
-
 let get_factor_list range =
   let res = Array.init (range + 1) ~f:(fun _ -> ([] : int list)) in
   for i = range downto 1 do
