@@ -23,7 +23,7 @@ let reachable prefix_sum n m size =
       vst.(x).(y) <- true;
       Queue.enqueue q (x, y))
   in
-  add (n - 1, 0);
+  add (0, 0);
   while not (Queue.is_empty q) do
     let x, y = Queue.dequeue_exn q in
     add (x + 1, y);
@@ -31,7 +31,7 @@ let reachable prefix_sum n m size =
     add (x, y + 1);
     add (x, y - 1)
   done;
-  vst.(0).(m - 1)
+  vst.(n - 1).(m - 1)
 ;;
 
 let rec binary_search ~f lo hi =
@@ -44,14 +44,14 @@ let rec binary_search ~f lo hi =
 
 let () =
   let n, m = read_int_list () |> to_2ple in
-  let tbl = List.init n ~f:(fun _ -> read_line ()) in
   let prefix_sum = Array.make_matrix ~dimx:(n + 1) ~dimy:(m + 1) 0 in
-  List.iteri tbl ~f:(fun x row ->
-    String.iteri row ~f:(fun y c ->
+  for x = 0 to n - 1 do
+    String.iteri (read_line ()) ~f:(fun y c ->
       prefix_sum.(x + 1).(y + 1) <- (if Char.equal c 'X' then 1 else 0);
       prefix_sum.(x + 1).(y + 1) <- prefix_sum.(x + 1).(y + 1) + prefix_sum.(x + 1).(y);
       prefix_sum.(x + 1).(y + 1) <- prefix_sum.(x + 1).(y + 1) + prefix_sum.(x).(y + 1);
-      prefix_sum.(x + 1).(y + 1) <- prefix_sum.(x + 1).(y + 1) - prefix_sum.(x).(y)));
+      prefix_sum.(x + 1).(y + 1) <- prefix_sum.(x + 1).(y + 1) - prefix_sum.(x).(y))
+  done;
   let test size = not (reachable prefix_sum (n - size + 1) (m - size + 1) size) in
   printf "%d\n" @@ binary_search ~f:test 0 (min n m + 1)
 ;;
