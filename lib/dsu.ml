@@ -5,7 +5,7 @@ open! Stdio
 let par = fst
 let sz = snd
 
-type t = (int * int) array
+type t = (int * int) array [@@deriving sexp_of]
 
 let create n : t = Array.init n ~f:(fun id -> id, 1)
 
