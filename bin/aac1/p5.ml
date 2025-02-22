@@ -5,6 +5,31 @@ open! Stdio
 (** Definitions of modules here *)
 open! Lib
 
+module Tree = struct
+  type ('a, 'b) node =
+    { id : int
+    ; data : 'a
+    ; mutable adj : ('b * ('a, 'b) node) list
+    }
+
+  let init ?(bi = true) nodes edges =
+    let nodes =
+      Array.of_list_mapi
+        ~f:(fun id data -> ({ id; data; adj = [] } : ('a, 'b) node))
+        nodes
+    in
+    let rec add_edge = function
+      | [] -> ()
+      | (u, v, w) :: tl ->
+        nodes.(u).adj <- (w, nodes.(v)) :: nodes.(u).adj;
+        if bi then nodes.(v).adj <- (w, nodes.(u)) :: nodes.(v).adj;
+        add_edge tl
+    in
+    add_edge edges;
+    nodes.(1)
+  ;;
+end
+
 open! Input
 
 type in_data = { depth : int }
