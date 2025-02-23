@@ -2,59 +2,118 @@ open! Base
 open! Core
 open! Stdio
 
-(** This is needed because my expander sucks *)
 module Algebra = struct
-  module type Monoid = sig
-    type t
+  module Group = struct
+    type 'a t =
+      { id : 'a
+      ; plus : 'a -> 'a -> 'a
+      ; inverse : 'a -> 'a
+      ; sexp_of_t : 'a -> Sexp.t
+      }
 
-    include Sexpable with type t := t
+    let int_plus : int t = Int.{ id = zero; plus = ( + ); sexp_of_t; inverse = ( ~- ) }
 
-    val ( + ) : t -> t -> t
-    val zero : t
+    let xor : int t =
+      Int.{ id = zero; plus = ( lxor ); sexp_of_t; inverse = (fun x -> x) }
+    ;;
+
+    let float_plus : float t =
+      Float.{ id = one; plus = ( + ); sexp_of_t; inverse = ( ~- ) }
+    ;;
+
+    let float_mul : float t =
+      Float.{ id = one; plus = ( * ); sexp_of_t; inverse = (fun x -> 1. / x) }
+    ;;
+
+    let minus g a b = g.plus a (g.inverse b)
   end
-
-  module type Group = sig
-    type t
-
-    include Monoid with type t := t
-
-    val ( ~- ) : t -> t
-  end
-
-  module type CommutativeMonoid = Monoid
-  module type CommutativeGroup = Group
 end
 
-module type S0 = sig
-  type elt
-  type t = elt array
+(** Manually including modules is needed because my expander sucks *)
 
-  val init : int -> t
-  val add : t -> int -> elt -> unit
-  val get : t -> int -> elt
-  val sum : t -> int -> int -> elt
-end
+type 'a t =
+  { sum : 'a array
+  ; data : 'a array
+  ; op : 'a Algebra.Group.t
+  }
 
-module type S = sig
-  type elt
+let create ?(op : 'a Algebra.Group.t = Algebra.Group.int_plus) n : 'a t =
+  { sum = Array.init ~f:(fun _ -> op.id) (n + 1)
+  ; op
+  ; data = Array.init ~f:(fun _ -> op.id) n
+  }
+;;
 
-  include S0 with type elt := elt
+let len (tree : 'a t) = Array.length tree.sum
+let low_bit x = x land -x
 
-  val set : t -> int -> elt -> unit
-end
+let add tree ~pos ~v =
+  tree.data.(pos) <- tree.op.plus tree.data.(pos) v;
+  let pos = pos + 1 in
+  let rec add' pos =
+    if pos < Array.length tree.sum
+    then (
+      tree.sum.(pos) <- tree.op.plus tree.sum.(pos) v;
+      add' (pos + low_bit pos))
+    else ()
+  in
+  add' pos
+;;
 
-module Make0 (M : Algebra.CommutativeMonoid) : S0 with type elt := M.t = struct
-  type elt = M.t
-  type t = elt array
+let set tree ~pos ~v =
+  let v = Algebra.Group.minus tree.op v tree.data.(pos) in
+  add tree ~pos ~v
+;;
 
-  let init x = Array.init ~f:(fun _ -> M.zero) (x + 1)
-  let add _ _ _ = ()
-  let get _ _ = M.zero
-  let sum _ _ _ = M.zero
-end
+let prefix_sum tree r =
+  let rec get acc p =
+    if p <= 0 then acc else get (tree.op.plus acc tree.sum.(p)) (p - low_bit p)
+  in
+  get tree.op.id r
+;;
 
-module Make (M : Algebra.CommutativeGroup) : S with type elt := M.t = struct
-  include Make0 (M)
+let sum tree l r = Algebra.Group.minus tree.op (prefix_sum tree r) (prefix_sum tree l)
 
-  let set _ _ _ = ()
-end
+let find_last_satisfying (tree : 'a t) pred =
+  if not @@ pred tree.op.id
+  then None
+  else (
+    let len = len tree in
+    let rec search acc pos step =
+      if step = 0
+      then pos
+      else (
+        let pos' = pos + step in
+        if pos' >= len
+        then search acc pos (step / 2)
+        else (
+          let acc' = tree.op.plus acc tree.sum.(pos') in
+          if pred acc' then search acc' pos' (step / 2) else search acc pos (step / 2)))
+    in
+    Some (search tree.op.id 0 (Int.floor_pow2 len)))
+;;
+
+let find_first_satisfying (tree : 'a t) pred =
+  (* The first satisfying is the one just after the last not satisfying *)
+  match find_last_satisfying tree (fun x -> not @@ pred x) with
+  | None -> Some 0
+  | Some x when x = len tree - 1 -> None
+  | Some x -> Some (x + 1)
+;;
+
+let binary_search (tree : 'a t) ~compare how v =
+  match how with
+  | `Last_strictly_less_than -> find_last_satisfying tree (fun x -> compare x v < 0)
+  | `Last_less_than_or_equal_to -> find_last_satisfying tree (fun x -> compare x v <= 0)
+  | `First_equal_to ->
+    (match find_first_satisfying tree (fun x -> compare x v >= 0) with
+     | Some x when compare (prefix_sum tree x) v = 0 -> Some x
+     | None | Some _ -> None)
+  | `Last_equal_to ->
+    (match find_last_satisfying tree (fun x -> compare x v <= 0) with
+     | Some x when compare (prefix_sum tree x) v = 0 -> Some x
+     | None | Some _ -> None)
+  | `First_greater_than_or_equal_to ->
+    find_first_satisfying tree (fun x -> compare x v >= 0)
+  | `First_strictly_greater_than -> find_first_satisfying tree (fun x -> compare x v > 0)
+;;
