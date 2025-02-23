@@ -53,37 +53,23 @@ let make (n : int) =
     let transform_inplace ?(inv = false) a =
       let sz = Array.length a in
       bitrev a;
-      let process_block_size l =
-        let dx = max_length / l in
-        let dl = l / 2 in
-        let process_block i =
-          let rec loop j x =
-            if j < i + dl
-            then (
-              let module C = Stdlib.Complex in
-              let tmp = C.mul a.(j + dl) (if inv then C.conj w.(x) else w.(x)) in
-              a.(j + dl) <- C.sub a.(j) tmp;
-              a.(j) <- C.add a.(j) tmp;
-              ();
-              loop (j + 1) (x + dx))
-          in
-          loop i 0
-        in
-        let rec loop i =
-          if i < sz
-          then (
-            process_block i;
-            loop (i + l))
-        in
-        loop 0
-      in
-      let rec process bs =
-        if bs <= sz
-        then (
-          process_block_size bs;
-          process (bs * 2))
-      in
-      process 2;
+      let l = ref 2 in
+      while !l <= sz do
+        let dx = max_length / !l in
+        let dl = !l / 2 in
+        for i' = 0 to (sz / !l) - 1 do
+          let i = i' * !l in
+          for j = i to i + dl - 1 do
+            let module C = Stdlib.Complex in
+            let tmp =
+              C.mul a.(j + dl) (if inv then C.conj w.((j - i) * dx) else w.((j - i) * dx))
+            in
+            a.(j + dl) <- C.sub a.(j) tmp;
+            a.(j) <- C.add a.(j) tmp
+          done
+        done;
+        l := !l * 2
+      done;
       if inv
       then (
         let (invn : cp) = { re = Float.of_int sz; im = 0. } in
@@ -91,8 +77,6 @@ let make (n : int) =
     ;;
 
     let ( * ) a b =
-      let a = Array.copy a in
-      let b = Array.copy b in
       let la = Array.length a in
       let lb = Array.length b in
       let deg = la + lb - 1 in

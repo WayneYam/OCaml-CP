@@ -7,7 +7,7 @@ open! Lib
 
 open! Input
 
-let maxN = Int.pow 2 22
+let maxN = Int.pow 2 21
 
 module F = (val Fft.make maxN : Fft.FFT)
 
