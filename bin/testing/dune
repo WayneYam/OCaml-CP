@@ -1,6 +1,6 @@
 (executable
- (name temp)
- (modules temp)
+ (name modint_bench)
+ (modules modint_bench)
  (libraries lib base core stdio str zarith)
  (flags (:standard -warn-error -A))
  (preprocess (pps ppx_jane)))
