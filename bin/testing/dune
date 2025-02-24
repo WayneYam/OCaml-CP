@@ -1,0 +1,7 @@
+(executable
+ (name temp)
+ (modules temp)
+ (libraries lib base core stdio str zarith)
+ (flags (:standard -warn-error -A))
+ (preprocess (pps ppx_jane)))
+

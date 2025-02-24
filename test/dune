@@ -1,0 +1,5 @@
+(library
+ (name modint_test)
+ (preprocess (pps ppx_expect))
+ (inline_tests)
+ (libraries lib base core stdio str zarith))
