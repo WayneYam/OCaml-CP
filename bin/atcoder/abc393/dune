@@ -1,0 +1,132 @@
+
+ (rule
+ (target A_submit.ml)
+ (deps A.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name A_submit)
+ (modules A_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name A)
+ (modules A)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+
+ (rule
+ (target B_submit.ml)
+ (deps B.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name B_submit)
+ (modules B_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name B)
+ (modules B)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+
+ (rule
+ (target C_submit.ml)
+ (deps C.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name C_submit)
+ (modules C_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name C)
+ (modules C)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+
+ (rule
+ (target D_submit.ml)
+ (deps D.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name D_submit)
+ (modules D_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name D)
+ (modules D)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+
+ (rule
+ (target E_submit.ml)
+ (deps E.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name E_submit)
+ (modules E_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name E)
+ (modules E)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
+
+ (rule
+ (target F_submit.ml)
+ (deps F.ml)
+ (action
+  (with-stdout-to %{target}
+   (with-stdin-from %{deps}
+    (chdir %{project_root} (run ./expander))))))
+
+(executable
+ (name F_submit)
+ (modules F_submit)
+ (libraries base core stdio str zarith)
+ (preprocess (pps ppx_jane))
+ (flags (-dsource)))
+
+(executable
+ (name F)
+ (modules F)
+ (libraries lib base core stdio str zarith)
+ (preprocess (pps ppx_jane)))
+
