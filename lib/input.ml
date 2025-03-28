@@ -16,6 +16,12 @@ let read_int64_list ?(on = [ ' ' ]) () =
   List.map ~f:Int64.of_string @@ String.split_on_chars ~on @@ read_line ()
 ;;
 
+let read_float () = Float.of_string @@ read_line ()
+
+let read_float_list ?(on = [ ' ' ]) () =
+  List.map ~f:Float.of_string @@ read_string_list ~on ()
+;;
+
 let to_2ple l =
   match l with
   | [ x; y ] -> x, y
