@@ -3,8 +3,8 @@ open! Core
 open! Stdio
 
 (** Definitions of modules here *)
-open! Lib
 
+open! Lib
 open! Input
 
 let () = print_endline "Hello World!"
