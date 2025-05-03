@@ -11,3 +11,10 @@
  (libraries lib base core stdio str zarith)
  (flags (:standard -warn-error -A))
  (preprocess (pps ppx_jane)))
+
+(executable
+ (name testing)
+ (modules testing)
+ (libraries lib base core stdio str zarith)
+ (flags (:standard -warn-error -A))
+ (preprocess (pps ppx_jane)))
