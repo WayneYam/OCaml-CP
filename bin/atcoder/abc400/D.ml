@@ -18,11 +18,13 @@ end
 
 module PQ = Set.Make (Dat)
 
-let () =
+(*
+   let () =
   let h, w = read_int_list () |> to_2ple in
   let board = Array.init h ~f:(fun _ -> read_line ()) in
   let pq = () in
   ()
 ;;
+*)
 
 (** End of file *)

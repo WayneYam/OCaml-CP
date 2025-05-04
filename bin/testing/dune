@@ -5,12 +5,12 @@
  (flags (:standard -warn-error -A))
  (preprocess (pps ppx_jane)))
 
-(executable
- (name rainbow_delimiter_test)
- (modules rainbow_delimiter_test)
- (libraries lib base core stdio str zarith)
- (flags (:standard -warn-error -A))
- (preprocess (pps ppx_jane)))
+; (executable
+;  (name rainbow_delimiter_test)
+;  (modules rainbow_delimiter_test)
+;  (libraries lib base core stdio str zarith)
+;  (flags (:standard -warn-error -A))
+;  (preprocess (pps ppx_jane)))
 
 (executable
  (name testing)
