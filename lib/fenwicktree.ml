@@ -13,9 +13,11 @@ module Algebra = struct
 
     let int_plus : int t = Int.{ id = zero; plus = ( + ); sexp_of_t; inverse = ( ~- ) }
 
-    let xor : int t =
+    (*
+       let xor : int t =
       Int.{ id = zero; plus = ( lxor ); sexp_of_t; inverse = (fun x -> x) }
     ;;
+    *)
 
     let float_plus : float t =
       Float.{ id = one; plus = ( + ); sexp_of_t; inverse = ( ~- ) }
